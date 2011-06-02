@@ -41,12 +41,36 @@ XMI_PROCESSOR.prototype._object = function _object(decl) {
 	return code + "\n</OBJECT>\n";
 };
 
-XMI_PROCESSOR.prototype._dot = function _dot(unused, lvalue, rvalue) {
-	var code = '<DOT>\n';
-	if (this._is_leaf(lvalue))
-		code += this._is_leaf(lvalue) ? lvalue : this.prc(lvalue) + '.'
-				+ this._is_leaf(rvalue) ? rvalue : this.prc(rvalue);
-	return code + "\n</DOT>\n";
+XMI_PROCESSOR.prototype._dot = function _dot(lvalue, rvalue, multi) {
+	var code = multi ? '' : '<IDENT>';
+debugger;	
+	if (this._is_leaf(lvalue)){
+		code += lvalue;
+	} else {
+		if (lvalue[0] == 'dot'){
+			var args = lvalue.slice(1);
+			var lval = args[0];
+			var rval = args[1];
+			code += this._dot(lval,rval,true);
+		} else {
+			code += this.prc(lvalue);
+		}
+	}
+
+	
+	if (this._is_leaf(rvalue)){
+		code += '.'+rvalue;
+	} else {
+		if (rvalue[0] == 'dot'){
+			args = rvalue.slice(1);
+			lval = args[0];
+			rval = args[1];
+			code += this._dot(lval,rval,true);
+		} else {
+			code += this.prc(rvalue);
+		}
+	}
+	return code + (multi ? '' : "</IDENT>\n");
 };
 
 XMI_PROCESSOR.prototype._is_leaf = function _is_leaf(node) {
@@ -62,7 +86,9 @@ XMI_PROCESSOR.prototype._assign = function _assign(unused, lvalue, rvalue) {
 XMI_PROCESSOR.prototype._defun = function _defun(name, args, body) {
 	var code = '<DEFUN>\n<NAME>';
 	code += name + '</NAME>\n<ARGS>' + args + '</ARGS>\n<BODY>\n';
-	code += JSON.stringify(body);
+	var ast = ['toplevel'];
+	ast.push(body);
+	code += pro.gen_code(ast,{beautify: false});
 	code += '\n</BODY>\n';
 	return code + "\n</DEFUN>\n";
 };
@@ -97,6 +123,16 @@ XMI_PROCESSOR.prototype._var = function _var(statement) {
 	}
 	return code;
 };
+
+XMI_PROCESSOR.prototype._call = function _call(fun, args) {
+	var code = '';
+	debugger;
+	if (fun) {
+		code = '<CALL>' + JSON.stringify([fun,args]) + '</CALL>\n';
+	}
+	return code;
+};
+
 // #######################################################
 exports.create_processor = function() {
 	return new XMI_PROCESSOR();
