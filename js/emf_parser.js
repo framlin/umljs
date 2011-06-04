@@ -3,30 +3,31 @@ var sys = require('sys'), fs = require('fs'), xml2js = require('xml2js');
 var parser = new xml2js.Parser();
 parser.addListener('end', function(result) {
 	var root_model = result["uml:Model"].packagedElement;
+debugger;	
 	root_model.forEach(function cb_each_model(pkg) {
 		if (get_type(pkg) == 'uml:Model') {
 			visit_model(pkg);
 		}
 	});
-	console.log(JSON.stringify(result, null, 4));
-	console.log('Done.');
-	debugger;
 });
 
 function visit_model(model) {
-	console.log([ "MODEL", get_name(model) ]);
-	model.packagedElement.forEach(function cb_each_package(pkg) {
+debugger;	
+	model.forEach(function cb_each_package(pkg) {
 		var type = get_type(pkg);
+debugger;		
 		switch (type) {
 		case 'uml:Package':
 			visit_package(pkg);
+			break;
+		case 'uml:Class':
+			visit_class('.', pkg);
 			break;
 		}
 	});
 }
 
 function visit_package(pkg) {
-	console.log([ "PACKAGE", get_name(pkg) ]);
 	var dir = get_name(pkg);
 	try {
 		fs.mkdirSync(dir,0777);
@@ -46,6 +47,7 @@ function visit_package(pkg) {
 function visit_class(pkg_name, cls) {
 	var annotation = get_annotation(cls);
 	var class_name = get_name(cls);
+debugger;	
 	var src = [];
 	src.push(annotation);
 	src.push("function " + get_name(cls) + "(){\n}\n");
@@ -61,8 +63,8 @@ function visit_class(pkg_name, cls) {
 	}catch(ex){
 		
 	}
-	fs.writeFileSync(pkg_name+'/'+class_name.toUpperCase()+'.js',src.join('\n'),'utf-8');
-	console.log(src.join('\n'));
+	fs.writeFileSync('../generated_js/'+pkg_name+'/'+class_name.toLowerCase()+'.js',src.join('\n'),'utf-8');
+//	console.log(src.join('\n'));
 };
 
 function visit_ownedOperation(src, cls, op) {
@@ -97,7 +99,6 @@ function visit_ownedParameter(fun_obj,params){
 
 // ownedAttribute
 function visit_ownedAttribute(src, cls, attr){
-debugger;
 	if (attr.constructor == Array){
 		attr.forEach(function cb_each_attr(elem){
 			if (elem) {
@@ -122,19 +123,35 @@ debugger;
 
 
 function get_name(elem) {
-	return elem['@']['name'];
+	if ('@' in elem) {
+		return elem['@']['name'];
+	} else {
+		return elem['name'];
+	}
 };
 
 function get_xmi_id(elem) {
-	return elem['@']['xmi:id'];
+	if ('@' in elem) {
+		return elem['@']['xmi:id'];
+	} else {
+		return elem['xmi:id'];
+	}
 };
 
 function get_type(elem) {
-	return elem['@']['xmi:type'];
+	if ('@' in elem) {
+		return elem['@']['xmi:type'];
+	} else {
+		return elem['xmi:type'];
+	}
 };
 
 function get_annotation(elem) {
+if ('@' in elem) {
 	return "({'@' :" + JSON.stringify((elem['@']), null, 2) + "});";
+} else {
+	return "({'@' :" + JSON.stringify((elem), null, 2) + "});";
+}
 };
 
 function get_visibility(elem) {
@@ -142,6 +159,6 @@ function get_visibility(elem) {
 }
 
 // ##########################################################
-fs.readFile(__dirname + '/work.uml', function(err, data) {
+fs.readFile(__dirname + '/../generated_uml/work.uml', function(err, data) {
 	parser.parseString(data);
 });
