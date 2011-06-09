@@ -1,21 +1,21 @@
 var pro = require("uglify-js").uglify;
 var hash = require("hashlib");
-({'@' :{
+/*{'@':{
   "xmi:type": "uml:Class",
   "xmi:id": "_17_0_1_6470229_4721571026284_017346_2123",
   "name": "XMI_PROCESSOR"
-}});
+}}*/
 function XMI_PROCESSOR(){
 	this.stack = [];
 	this.objects = {};
 }
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_3795988477175_752417_1323",
   "name": "process",
   "visibility": "public"
-}});
-MI_PROCESSOR.prototype.process = function process(root) {
+}}*/
+XMI_PROCESSOR.prototype.process = function process(root) {
 	this.stack = [];
 	this.prc(this.stack, root);
 	var xmi = [];
@@ -27,7 +27,15 @@ MI_PROCESSOR.prototype.process = function process(root) {
 	xmi
 			.push('<packagedElement xmi:type="uml:Model" xmi:id="_17_0_1_6470229_1305116141090_150905_1870" name="static" viewpoint="">');
 
-	// ------------------------------
+	// 1 ------------------------------
+	// 2 ------------------------------
+	// 3 ------------------------------
+	
+	/**
+	 * this is a little test about remarks
+	 */
+	
+	// here we start .....
 	for (var o in this.objects){
 		var obj = this.objects[o];
 		var id = obj._xmi_id_;
@@ -44,17 +52,14 @@ MI_PROCESSOR.prototype.process = function process(root) {
 	xmi.push('</xmi:XMI>');
 
 	return xmi.join('\n');
-	/*
-	 * for (var o in this.objects){ }
-	 */
 };
 
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_7815686991192_814328_1270",
   "name": "prc",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype.prc = function prc(stack, node) {
 	var code = "";
 	try {
@@ -67,11 +72,11 @@ XMI_PROCESSOR.prototype.prc = function prc(stack, node) {
 	}
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_7252724834200_439533_9354",
   "name": "_toplevel",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._toplevel = function _toplevel(stack, arglist) {
 	var me = this;
 	function get_cb(stack) {
@@ -83,23 +88,26 @@ XMI_PROCESSOR.prototype._toplevel = function _toplevel(stack, arglist) {
 	arglist.forEach(get_cb(stack));
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_0245933826055_204184_7584",
   "name": "_stat",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._stat = function _stat(stack, arglist) {
 	stack.push('<STATEMENT>');
 	this.prc(stack, arglist);
 	stack.push("</STATEMENT>");
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_4126985507716_249917_6032",
   "name": "_object",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._object = function _object(stack, decl) {
+	
+	
+debugger;	
 	var me = this;
 	function get_cb(stack) {
 		return function cb_each_decl(prop, i) {
@@ -112,11 +120,11 @@ XMI_PROCESSOR.prototype._object = function _object(stack, decl) {
 	stack.push("</OBJECT>");
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_6450194885572_304060_7857",
   "name": "_dot",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._dot = function _dot(stack, lvalue, rvalue, multi) {
 	if (!multi) {
 		stack.push('<IDENT>');
@@ -152,20 +160,20 @@ XMI_PROCESSOR.prototype._dot = function _dot(stack, lvalue, rvalue, multi) {
 	}
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_9091684632553_710202_3224",
   "name": "_is_leaf",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._is_leaf = function _is_leaf(node) {
 	return node.constructor != Array;
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_0725708457148_017554_8695",
   "name": "_assign",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._assign = function _assign(stack, unused, lvalue,
 		rvalue) {
 	stack.push('<ASSIGN>');
@@ -175,11 +183,11 @@ XMI_PROCESSOR.prototype._assign = function _assign(stack, unused, lvalue,
 	stack.push("</ASSIGN>");
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_5750551641835_903109_8624",
   "name": "_defun",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._defun = function _defun(stack, name, args, body) {
 	debugger;
 	var node = [ 'defun', name, args, body ];
@@ -210,95 +218,98 @@ XMI_PROCESSOR.prototype._defun = function _defun(stack, name, args, body) {
 
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_1301258113191_433411_5280",
   "name": "_compute_id",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._compute_id = function _compute_id(stack, node) {
 	var md_prefix = '_17_0_1_6470229_';
 	var crypted = hash.sha512(node.join(''));
-	// filter alphas to leave only digits
+
+	//filter alphas to leave only digits
 	var digits = crypted.match(/[0-9]+/g).join('').substr(0, 25).split('');
-	// format with _: 13_6_4->0-12/13/14-19/20/21-24
+	
+	//format with _: 13_6_4->0-12/13/14-19/20/21-24
 	digits[13] = digits[20] = '_';
+	
 	return md_prefix + digits.join('');
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_8980574786382_423683_9266",
   "name": "_is_toplevel",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._is_toplevel = function _is_toplevel(stack, node) {
 	debugger;
 	return stack[stack.length - 1] == '<TOPLEVEL>';
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_5490949272326_788702_6124",
   "name": "_string",
   "visibility": "public"
-}});
-MI_PROCESSOR.prototype._string = function _string(stack, elem) {
+}}*/
+XMI_PROCESSOR.prototype._string = function _string(stack, elem) {
 	stack.push(elem);
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_1091494769175_498384_4044",
   "name": "_name",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._name = function _name(stack, elem) {
 	stack.push(elem);
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_6668981780430_206770_0703",
   "name": "_function",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._function = function _function(stack, name, args, body) {
 	stack.push('<FUNCTIION>');
 	this._defun(stack, name, args, body);
 	stack.push('</FUNCTIION>');
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_5598626242317_677329_7177",
   "name": "_block",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._block = function _block(stack, elem) {
 	if (elem) {
 		stack.push('<BLOCK>' + elem + '</BLOCK>');
 	}
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_0018556265519_531999_3062",
   "name": "_var",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._var = function _var(){
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_1_6470229_1995002140703_919153_1458",
   "name": "_call",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype._call = function _call(stack, fun, args) {
 	if (fun) {
 		stack.push('<CALL>' + JSON.stringify([ fun, args ]) + '</CALL>');
 	}
 };
 
-({'@' :{
+/*{'@':{
   "xmi:id": "_17_0_2_6470229_1307200886870_482180_1666",
   "name": "merge",
   "visibility": "public"
-}});
+}}*/
 XMI_PROCESSOR.prototype.merge = function merge(){
 };
 
