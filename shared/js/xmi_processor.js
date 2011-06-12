@@ -41,7 +41,7 @@ XMI_PROCESSOR.prototype.process = function process(root) {
 				+ '" name="' + o + '">');
 		for ( var m in obj.ownedOperation) {
 			var method = obj.ownedOperation[m];
-debugger;
+			debugger;
 			var visibility = method.ann ? method.ann.visibility : "public";
 			xmi.push('<ownedOperation xmi:id="' + m + '" name="' + method.name
 					+ '" visibility="' + visibility + '"/>');
@@ -207,7 +207,7 @@ XMI_PROCESSOR.prototype._defun = function _defun(stack, name, args, body) {
 		id = ann['xmi:id'];
 	} else {
 		id = this._compute_id(stack, node);
-		if (ann){
+		if (ann) {
 			ann['xmi:id'] = id;
 		}
 	}
