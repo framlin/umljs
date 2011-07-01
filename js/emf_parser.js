@@ -6,7 +6,9 @@ var xmi_walker = require('xmi_walker').create_walker();
 var parser = new xml2js.Parser();
 
 parser.addListener('end', function(result) {
-	xmi_walker.start(result);
+	xmi_walker.start(result, function cb_result(src_list){
+		console.log(src_list.join('\n'));
+	});
 });
 
 // ##########################################################

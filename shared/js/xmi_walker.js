@@ -3,22 +3,28 @@ var SHARED_JS_DIR = './';
 var SHARED_MODEL_NAME = 'implementation';
 
 function XMI_WALKER() {
-
+	this.stack = [];
 }
 
-XMI_WALKER.prototype.start = function start(parse_result) {
+XMI_WALKER.prototype.start = function start(parse_result, cb_result) {
 	var me = this;
 	var root_model = parse_result["uml:Model"].packagedElement;
 	debugger;
 	root_model.forEach(function cb_each_model(pkg) {
 		if (me.get_type(pkg) == 'uml:Model') {
-			me.visit_model(pkg);
+			me.visit_model(me.stack, pkg);
 		}
 	});
-
+	
+	//copy the result-stack and pass it to the call_back
+	var src = [];
+	this.stack.forEach(function cb_eack(elem){
+		src.push(elem);
+	});
+	cb_result(src);
 };
 
-XMI_WALKER.prototype.visit_model = function visit_model(model) {
+XMI_WALKER.prototype.visit_model = function visit_model(stack, model) {
 	var me = this;
 	debugger;
 	if (this.get_name(model) == SHARED_MODEL_NAME) {
@@ -27,17 +33,18 @@ XMI_WALKER.prototype.visit_model = function visit_model(model) {
 			debugger;
 			switch (type) {
 			case 'uml:Package':
-				me.visit_package(pkg);
+				me.visit_package(stack, pkg);
 				break;
 			case 'uml:Class':
-				me.visit_class('.', pkg);
+				me.visit_class(stack, '.', pkg);
 				break;
 			}
 		});
+		
 	}
 };
 
-XMI_WALKER.prototype.visit_package = function visit_package(pkg) {
+XMI_WALKER.prototype.visit_package = function visit_package(stack, pkg) {
 	var me = this;
 	var dir = this.get_name(pkg);
 	try {
@@ -49,30 +56,30 @@ XMI_WALKER.prototype.visit_package = function visit_package(pkg) {
 		var type = me.get_type(elem);
 		switch (type) {
 		case 'uml:Class':
-			me.visit_class(dir, elem);
+			me.visit_class(stack, dir, elem);
 			break;
 		}
 	});
 };
 
-XMI_WALKER.prototype.visit_class = function visit_class(pkg_name, cls) {
+XMI_WALKER.prototype.visit_class = function visit_class(stack, pkg_name, cls) {
 	var annotation = this.get_annotation(cls);
 	var class_name = this.get_name(cls);
 	debugger;
-	var src = [];
-	src.push(annotation);
-	src.push("function " + this.get_name(cls) + "(){\n}\n");
+	stack.push("//package: "+pkg_name);
+	stack.push(annotation);
+	stack.push("function " + this.get_name(cls) + "(){\n}\n");
 	if ('ownedAttribute' in cls) {
-		this.visit_ownedAttribute(src, cls, cls.ownedAttribute);
+		this.visit_ownedAttribute(stack, cls, cls.ownedAttribute);
 	}
 
 	if ('ownedOperation' in cls) {
-		this.visit_ownedOperation(src, cls, cls.ownedOperation);
+		this.visit_ownedOperation(stack, cls, cls.ownedOperation);
 	}
 	// fs.writeFileSync(SHARED_JS_DIR + pkg_name + '/' +
 	// class_name.toLowerCase()
 	// + '.js', src.join('\n'), 'utf-8');
-	console.log(src.join('\n'));
+	//console.log(src.join('\n'));
 };
 
 XMI_WALKER.prototype.visit_ownedOperation = function visit_ownedOperation(src,
